@@ -1,3 +1,4 @@
 *.o
 *~
 pic32prog
+pic32prog.exe

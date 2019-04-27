@@ -1,3 +1,20 @@
+This is a fork of pic32prog including the Kiffie van Haash (KVH) patches.
+The patches add support for ICSP (2 wire) using a FT2232-based USB adapter.
+
+Electrical connection to the target:
+
+     TCK ------- PGEC
+     TDO -+----- PGED
+          |
+     TDI -+
+     TMS ------- MCLR\
+
+Apply the command line option "-d micsp:0403:6010" to use ICSP on a USB
+device having vendor/device ID 0403:6010.
+
+The ICSP interface supports the PIC32MM0064GPL028 in addition to the other
+controller types.
+
 Pic32prog is a utility for loading data into a flash memory of Microchip PIC32
 microcontrollers.  Supported adapters and bootloaders:
  * Microchip PICkit2

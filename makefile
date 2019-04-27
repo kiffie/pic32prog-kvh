@@ -30,6 +30,7 @@ PROG_OBJS       = pic32prog.o target.o executive.o serial.o \
                   adapter-pickit2.o adapter-hidboot.o adapter-an1388.o \
                   adapter-bitbang.o adapter-stk500v2.o adapter-uhb.o \
                   adapter-an1388-uart.o configure.o \
+                  adapter-micsp.o \
                   family-mx1.o family-mx3.o family-mz.o $(HIDLIB)
 
 # JTAG adapters based on FT2232 chip
@@ -63,7 +64,7 @@ pic32prog-ru-cp866.mo ru/LC_MESSAGES/pic32prog.mo: pic32prog-ru.po
 		cp pic32prog-ru-cp866.mo ru/LC_MESSAGES/pic32prog.mo
 
 clean:
-		rm -f *~ *.o core pic32prog adapter-mpsse pic32prog.po hidapi/ar-lib hidapi/compile
+		rm -f *~ *.o core adapter-mpsse pic32prog.po hidapi/ar-lib hidapi/compile
 		if [ -f hidapi/Makefile ]; then make -C hidapi clean; fi
 
 install:	pic32prog #pic32prog-ru.mo

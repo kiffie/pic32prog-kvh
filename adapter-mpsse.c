@@ -117,13 +117,17 @@ typedef struct {
 #define RTDO                    0x20
 #define WTMS                    0x40
 
+/* max. number of PRAC polls */
+#define MAX_PRAC_POLLS          5000
+
 static const device_t devlist[] = {
     { OLIMEX_VID,           OLIMEX_ARM_USB_TINY,    "Olimex ARM-USB-Tiny",               6,  0x0f10, 0x0100, 1,  0x0200,  0,   0x0800,  0, NULL},
     { OLIMEX_VID,           OLIMEX_ARM_USB_TINY_H,  "Olimex ARM-USB-Tiny-H",            30,  0x0f10, 0x0100, 1,  0x0200,  0,   0x0800,  0, NULL},
     { OLIMEX_VID,           OLIMEX_ARM_USB_OCD_H,   "Olimex ARM-USB-OCD-H",             30,  0x0f10, 0x0100, 1,  0x0200,  0,   0x0800,  0, NULL},
     { OLIMEX_VID,           OLIMEX_MIPS_USB_OCD_H,  "Olimex MIPS-USB-OCD-H",            30,  0x0f10, 0x0100, 1,  0x0200,  1,   0x0800,  0, NULL},
-    { DP_BUSBLASTER_VID,    DP_BUSBLASTER_PID,      "TinCanTools Flyswatter",            6,  0x0cf0, 0x0010, 1,  0x0020,  1,   0x0c00,  1, "Flyswatter"},
-    { DP_BUSBLASTER_VID,    DP_BUSBLASTER_PID,      "Dangerous Prototypes Bus Blaster", 30,  0x0f10, 0x0100, 1,  0x0200,  1,   0x0000,  0, NULL},
+//    { DP_BUSBLASTER_VID,    DP_BUSBLASTER_PID,      "TinCanTools Flyswatter",            6,  0x0cf0, 0x0010, 1,  0x0020,  1,   0x0c00,  1, "Flyswatter"},
+//    { DP_BUSBLASTER_VID,    DP_BUSBLASTER_PID,      "Dangerous Prototypes Bus Blaster", 30,  0x0f10, 0x0100, 1,  0x0200,  1,   0x0000,  0, NULL},
+    { DP_BUSBLASTER_VID,    DP_BUSBLASTER_PID,      "ICT Open OCD",                      6,  0x0f00, 0x0200, 1,  0x0800,  1,   0x0000,  0, NULL},
     { 0 }
 };
 
@@ -534,12 +538,30 @@ static void serial_execution(mpsse_adapter_t *a)
 
 static void xfer_fastdata(mpsse_adapter_t *a, unsigned word)
 {
+#if 0
     mpsse_send(a, 0, 0, 33, (unsigned long long) word << 1, 0);
+#else
+    unsigned status;
+    int i= 0;
+    do {
+        if( ++i > MAX_PRAC_POLLS ){
+            fprintf(stderr,
+                    "xfer_fastdata(): polling Processor Access Bit timed out.\n");
+            exit(-1);
+        }
+        mpsse_send (a, 0, 0, 33, (unsigned long long) word << 1, 1);
+        status= mpsse_recv(a);
+    } while ( (status & 0x01) == 0);
+    //if( i > 1 ){
+    //	    fprintf(stderr, "xfer_fastdata(): number of iterations: %d\n", i);
+    //    }
+#endif
 }
 
 static void xfer_instruction(mpsse_adapter_t *a, unsigned instruction)
 {
     unsigned ctl;
+    int i;
 
     if (debug_level > 1)
         fprintf(stderr, "%s: xfer instruction %08x\n", a->name, instruction);
@@ -549,7 +571,12 @@ static void xfer_instruction(mpsse_adapter_t *a, unsigned instruction)
 
     // Wait until CPU is ready
     // Check if Processor Access bit (bit 18) is set
+    i= 0;
     do {
+        if( ++i >= MAX_PRAC_POLLS ){
+            fprintf(stderr, "xfer_instruction(): polling Processor Access Bit timed out, ctrl=%08x.\n", ctl);
+            exit(-1);
+        }
         mpsse_send(a, 0, 0, 32, CONTROL_PRACC |     /* Xfer data. */
                                 CONTROL_PROBEN |
                                 CONTROL_PROBTRAP |
@@ -571,13 +598,19 @@ static void xfer_instruction(mpsse_adapter_t *a, unsigned instruction)
 static unsigned get_pe_response(mpsse_adapter_t *a)
 {
     unsigned ctl, response;
+    int i;
 
     // Select Control Register
     mpsse_send(a, 1, 1, 5, ETAP_CONTROL, 0);        /* Send command. */
 
     // Wait until CPU is ready
     // Check if Processor Access bit (bit 18) is set
+    i= 0;
     do {
+        if( ++i >= MAX_PRAC_POLLS ){
+            fprintf(stderr, "get_pe_response(): polling Processor Access Bit timed out.\n");
+            exit(-1);
+        }
         mpsse_send(a, 0, 0, 32, CONTROL_PRACC |     /* Xfer data. */
                                 CONTROL_PROBEN |
                                 CONTROL_PROBTRAP |

@@ -715,7 +715,7 @@ int main(int argc, char **argv)
     setvbuf(stderr, (char *)NULL, _IOLBF, 0);
     printf(_("Programmer for Microchip PIC32 microcontrollers, Version %s\n"), VERSION);
     progname = argv[0];
-    copyright = _("    Copyright: (C) 2011-2015 Serge Vakulenko");
+    copyright = _("    Copyright: (C) 2011-2015 Serge Vakulenko (KVH patches applied)");
     signal(SIGINT, interrupted);
 #ifdef __linux__
     signal(SIGHUP, interrupted);

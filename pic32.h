@@ -15,11 +15,15 @@
  * Described in PIC32MX Flash Programming Specification.
  */
 #define	PIC32_PE_LOADER_LEN 42
+#define PIC32_PE_LOADER_LEN_MM 22
 
 extern const unsigned short pic32_pe_loader[];
+extern const unsigned short pic32_pe_loader_mm[];
 extern const unsigned pic32_pemx1[];
 extern const unsigned pic32_pemx3[];
 extern const unsigned pic32_pemz[];
+extern const unsigned pic32_pemm[];
+extern const unsigned pic32_pemm_20b2[];
 
 /*
  * TAP instructions (5-bit).
@@ -104,6 +108,7 @@ extern const unsigned pic32_pemz[];
 #define PE_PROGRAM_CLUSTER      0x9     /* Program N bytes */
 #define PE_GET_DEVICEID         0xA     /* Return the hardware ID of device */
 #define PE_CHANGE_CFG           0xB     /* Change PE settings */
+#define PE_DOUBLE_WORD_PGRM     0xE     /* Program two words of Flash memory */
 
 /*-------------------------------------------------------------------
  * MX3/4/5/6/7 family.

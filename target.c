@@ -37,6 +37,14 @@ family_t family_mx3 = { "mx3",
 static const
 family_t family_mz  = { "mz",
                         80, 0xffc0, 2048, print_mz,  pic32_pemz,  1052, 0x0502 };
+
+
+//static const
+//family_t family_mm  = { "mm",
+//                        6,  0     , 256,  0,         pic32_pemm,  533,  0x0505};
+static const
+family_t family_mm  = { "mm",
+                        6,  0     , 256,  0,         pic32_pemm_20b2,  555,  0x0510};
 /*
  * This one is a special one for the bootloader. We have no idea what we're
  * programming, so set the values to the maximum out of all the others.
@@ -269,6 +277,9 @@ static variant_t pic32_tab[TABSZ] = {
     {0x7227053, "MZ2048EFH144", 2048,   &family_mz},
     {0x724F053, "MZ2048EFM144", 2048,   &family_mz},
 
+    /* MM family-----------------Flash---Family */
+    {0x6B12053, "PIC32MM0064GPL028", 64, &family_mm},
+
     /* USB bootloader */
     {0xEAFB00B, "Bootloader",   0,      &family_bl},
     {0}
@@ -299,6 +310,7 @@ static const struct {
     { "hidboot",    adapter_open_hidboot        },
     { "an1388",     adapter_open_an1388         },
     { "uhb",        adapter_open_uhb            },
+    { "micsp",      adapter_open_micsp          },
     { 0 },
 };
 
@@ -656,6 +668,13 @@ void target_verify_block(target_t *t, unsigned addr,
     unsigned i, word, expected, block[512];
 
     //fprintf(stderr, "%s: addr=%08x, nwords=%u, data=%08x...\n", __func__, addr, nwords, data[0]);
+
+    if (t->family == &family_mm){ /* assumes that family_mm is not copied */
+        if (virt_to_phys(addr) == 0x1fc01700 && nwords >= 57){
+            data[24] = 0x7fffffff;
+            data[56] = 0x7fffffff;
+        }
+    }
     if (t->adapter->verify_data != 0) {
         t->adapter->verify_data(t->adapter, virt_to_phys(addr), nwords, data);
         return;
