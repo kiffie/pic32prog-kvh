@@ -31,6 +31,11 @@ extern print_func_t print_mz;
 static const
 family_t family_mx1 = { "mx1",
                         3,  0x0bf0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
+
+static const
+family_t family_mx1xlp = { "mx1xlp",
+                        12, 0x2ff0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
+
 static const
 family_t family_mx3 = { "mx3",
                         12, 0x2ff0, 512,  print_mx3, pic32_pemx3, 1044, 0x0201 };
@@ -110,6 +115,9 @@ static variant_t pic32_tab[TABSZ] = {
     {0x6A15053, "MX550F256L",    256,   &family_mx1},
     {0x6A34053, "MX570F512H",    512,   &family_mx1},
     {0x6A35053, "MX570F512L",    512,   &family_mx1},
+
+    /* MX1/2 XLP family---------Flash---Family */
+    {0x7803053, "MX274F256B",    256,   &family_mx1xlp},
 
     /* MX3/4/5/6/7 family-------Flash---Family */
     {0x0902053, "MX320F032H",     32,   &family_mx3},
