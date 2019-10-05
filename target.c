@@ -23,11 +23,15 @@
 extern print_func_t print_mx1;
 extern print_func_t print_mx3;
 extern print_func_t print_mz;
+extern print_func_t print_mm;
 
 /*
  * PIC32 families.
  */
                     /*-Boot-Devcfg--Row---Print------Code--------Nwords-Version-*/
+static const
+family_t family_mm  = { "mm",
+                        4, 0x1780,  256, print_mz,  pic32_pemm,  2000, 0x0510 };
 static const
 family_t family_mx1 = { "mx1",
                         3,  0x0bf0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
@@ -42,14 +46,6 @@ family_t family_mx3 = { "mx3",
 static const
 family_t family_mz  = { "mz",
                         80, 0xffc0, 2048, print_mz,  pic32_pemz,  1052, 0x0502 };
-
-
-//static const
-//family_t family_mm  = { "mm",
-//                        6,  0     , 256,  0,         pic32_pemm,  533,  0x0505};
-static const
-family_t family_mm  = { "mm",
-                        6,  0     , 256,  0,         pic32_pemm_20b2,  555,  0x0510};
 /*
  * This one is a special one for the bootloader. We have no idea what we're
  * programming, so set the values to the maximum out of all the others.
@@ -285,8 +281,13 @@ static variant_t pic32_tab[TABSZ] = {
     {0x7227053, "MZ2048EFH144", 2048,   &family_mz},
     {0x724F053, "MZ2048EFM144", 2048,   &family_mz},
 
-    /* MM family-----------------Flash---Family */
-    {0x6B12053, "PIC32MM0064GPL028", 64, &family_mm},
+    /* MZ DA family */
+    {0x5f4f053, "MZ2048XXXXXX", 2048,   &family_mz},
+    {0x5fb7053, "MZ2048XXXXXX", 2048,   &family_mz},
+
+    /* MM family */
+    {0x46b12053, "MM0064GPL028",  64,   &family_mm},
+    {0x66b04053, "MM0016GPL028",  16,   &family_mm},
 
     /* USB bootloader */
     {0xEAFB00B, "Bootloader",   0,      &family_bl},
@@ -602,8 +603,8 @@ void target_add_variant(char *name, unsigned id,
 void target_use_executive(target_t *t)
 {
     if (t->adapter->load_executive != 0 && t->family->pe_nwords != 0)
-        t->adapter->load_executive(t->adapter, t->family->pe_code,
-            t->family->pe_nwords, t->family->pe_version);
+        t->adapter->load_executive(t->adapter,
+            t->family->pe_code, t->family->pe_nwords, t->family->pe_version);
 }
 
 /*
@@ -676,13 +677,6 @@ void target_verify_block(target_t *t, unsigned addr,
     unsigned i, word, expected, block[512];
 
     //fprintf(stderr, "%s: addr=%08x, nwords=%u, data=%08x...\n", __func__, addr, nwords, data[0]);
-
-    if (t->family == &family_mm){ /* assumes that family_mm is not copied */
-        if (virt_to_phys(addr) == 0x1fc01700 && nwords >= 57){
-            data[24] = 0x7fffffff;
-            data[56] = 0x7fffffff;
-        }
-    }
     if (t->adapter->verify_data != 0) {
         t->adapter->verify_data(t->adapter, virt_to_phys(addr), nwords, data);
         return;
@@ -740,7 +734,7 @@ void target_program_block(target_t *t, unsigned addr,
             unsigned n = nwords;
             if (n > words_per_row)
                 n = words_per_row;
-	    if (! target_test_empty_block(data, words_per_row))
+            if (! target_test_empty_block(data, words_per_row))
                 t->adapter->program_row(t->adapter, addr, data, words_per_row);
             addr += n<<2;
             data += n;
@@ -769,9 +763,14 @@ void target_program_devcfg(target_t *t, unsigned devcfg0,
 
     unsigned addr = 0x1fc00000 + t->family->devcfg_offset;
 
-    //fprintf(stderr, "%s: devcfg0-3 = %08x %08x %08x %08x\n", __func__, devcfg0, devcfg1, devcfg2, devcfg3);
+    fprintf(stderr, "%s: devcfg0-3 = %08x %08x %08x %08x\n", __func__, devcfg0, devcfg1, devcfg2, devcfg3);
     if (t->family->pe_version >= 0x0500) {
         /* Since pic32mz, the programming executive */
+
+        /* Disable JTAG on MM series. */
+        if (memcmp(t->family->name, "mm", 2) == 0)
+            t->adapter->program_double_word(t->adapter, 0x1FC017C8, 0xfffffff3, 0xffffffff);
+
         t->adapter->program_quad_word(t->adapter, addr, devcfg3,
             devcfg2, devcfg1, devcfg0);
         return;

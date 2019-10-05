@@ -816,7 +816,7 @@ static void micsp_load_executive_micromips(adapter_t *adapter,
     serial_execution (a);
 
     if (debug_level > 0)
-        fprintf (stderr, "%s: download PE loader (micromips), nwords = %u\n", 
+        fprintf (stderr, "%s: download PE loader (micromips), nwords = %u\n",
                  a->name, nwords);
 
     /* Step 1 */
@@ -825,10 +825,10 @@ static void micsp_load_executive_micromips(adapter_t *adapter,
 
     /* Download the PE loader (Step2) */
     int i;
-    for (i=0; i<PIC32_PE_LOADER_LEN_MM; i+=2) {
+    for(i=0; i<PIC32_PEMM_LOADER_LEN; i+=2){
         /* Step 5. */
-        uint32_t opcode1 = 0x41A6 | (pic32_pe_loader_mm[i+1] << 16); /* hi */
-        uint32_t opcode2 = 0x50C6 | (pic32_pe_loader_mm[i] << 16); /* lo */
+        uint32_t opcode1 = 0x41A6 | (pic32_pemm_loader[i+1] << 16); /* hi */
+        uint32_t opcode2 = 0x50C6 | (pic32_pemm_loader[i] << 16); /* lo */
         xfer_instruction (a, opcode1);      // lui a2, PE_loader_hi++
         xfer_instruction (a, opcode2);      // ori a2, PE_loader_lo++
         xfer_instruction (a, 0x6E42EB40);   // sw  a2, 0(a0)

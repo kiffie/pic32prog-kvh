@@ -12,6 +12,18 @@ ifeq ($(UNAME),Linux)
     HIDLIB      = hidapi/libusb/.libs/libhidapi-libusb.a
 endif
 
+# FreeBSD
+ifeq ($(UNAME),FreeBSD)
+    LIBS        += -liconv -lusb -lpthread
+    HIDLIB      = hidapi/libusb/.libs/libhidapi.a
+endif
+
+# DragonFly BSD
+ifeq ($(UNAME),DragonFly)
+    LIBS        += -Wl,-Bstatic -lusb -Wl,-Bdynamic -lpthread
+    HIDLIB      = hidapi/libusb/.libs/libhidapi.a
+endif
+
 # Mac OS X
 ifeq ($(UNAME),Darwin)
     LIBS        += -framework IOKit -framework CoreFoundation
@@ -31,7 +43,7 @@ PROG_OBJS       = pic32prog.o target.o executive.o serial.o \
                   adapter-bitbang.o adapter-stk500v2.o adapter-uhb.o \
                   adapter-an1388-uart.o configure.o \
                   adapter-micsp.o \
-                  family-mx1.o family-mx3.o family-mz.o $(HIDLIB)
+                  family-mx1.o family-mx3.o family-mz.o family-mm.o $(HIDLIB)
 
 # JTAG adapters based on FT2232 chip
 CFLAGS          += -DUSE_MPSSE
