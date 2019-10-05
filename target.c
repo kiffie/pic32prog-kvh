@@ -31,7 +31,7 @@ extern print_func_t print_mm;
                     /*-Boot-Devcfg--Row---Print------Code--------Nwords-Version-*/
 static const
 family_t family_mm  = { "mm",
-                        4, 0x1780,  256, print_mz,  pic32_pemm,  2000, 0x0510 };
+                        6, 0x1780,  256, print_mm,  pic32_pemm,  2000, 0x0510 };
 static const
 family_t family_mx1 = { "mx1",
                         3,  0x0bf0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
