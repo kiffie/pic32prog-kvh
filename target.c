@@ -751,33 +751,3 @@ void target_program_block(target_t *t, unsigned addr,
         nwords -= n;
     }
 }
-
-/*
- * Program the configuration registers.
- */
-void target_program_devcfg(target_t *t, unsigned devcfg0,
-        unsigned devcfg1, unsigned devcfg2, unsigned devcfg3)
-{
-    if (! t->family->devcfg_offset)
-        return;
-
-    unsigned addr = 0x1fc00000 + t->family->devcfg_offset;
-
-    fprintf(stderr, "%s: devcfg0-3 = %08x %08x %08x %08x\n", __func__, devcfg0, devcfg1, devcfg2, devcfg3);
-    if (t->family->pe_version >= 0x0500) {
-        /* Since pic32mz, the programming executive */
-
-        /* Disable JTAG on MM series. */
-        if (memcmp(t->family->name, "mm", 2) == 0)
-            t->adapter->program_double_word(t->adapter, 0x1FC017C8, 0xfffffff3, 0xffffffff);
-
-        t->adapter->program_quad_word(t->adapter, addr, devcfg3,
-            devcfg2, devcfg1, devcfg0);
-        return;
-    }
-
-    t->adapter->program_word(t->adapter, addr, devcfg3);
-    t->adapter->program_word(t->adapter, addr + 4, devcfg2);
-    t->adapter->program_word(t->adapter, addr + 8, devcfg1);
-    t->adapter->program_word(t->adapter, addr + 12, devcfg0);
-}

@@ -347,9 +347,6 @@ static int is_boot_block_dirty(unsigned offset)
     int i;
 
     for (i=0; i<blocksz; i++, offset++) {
-        /* Skip devcfg registers. */
-        if (offset >= devcfg_offset && offset < devcfg_offset+16)
-            continue;
         if (boot_data [offset] != 0xff)
             return 1;
     }
@@ -569,12 +566,6 @@ void do_program(char *filename)
                 }
             }
             printf(_("# done      \n"));
-            if (! boot_dirty [devcfg_offset / blocksz]) {
-                /* Write chip configuration. */
-                target_program_devcfg(target,
-                    devcfg0, devcfg1, devcfg2, devcfg3);
-                boot_dirty [devcfg_offset / blocksz] = 1;
-            }
         }
     }
     if (flash_used && !skip_verify) {
