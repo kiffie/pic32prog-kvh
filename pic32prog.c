@@ -487,7 +487,8 @@ void do_program(char *filename)
 
     /* Verify DEVCFGx values. */
     if (boot_used) {
-        if (devcfg0 == 0xffffffff) {
+        if (strcmp(target->family->name, "mm") != 0 &&
+            devcfg0 == 0xffffffff) {
             fprintf(stderr, _("DEVCFG values are missing -- check your HEX file!\n"));
             exit(1);
         }
@@ -495,6 +496,13 @@ void do_program(char *filename)
             /* For MZ family, clear bits DEVSIGN0[31] and ADEVSIGN0[31]. */
             boot_data[0xFFEF] &= 0x7f;
             boot_data[0xFF6F] &= 0x7f;
+        }
+        /* clear "r-0" bits of reserved configuration words for MM family
+         * (see data sheet: "configuration words summary" tables)
+         */
+        if (strcmp(target->family->name, "mm") == 0){
+            boot_data[0x17e3] &= 0x7f;
+            boot_data[0x1763] &= 0x7f;
         }
     }
 
