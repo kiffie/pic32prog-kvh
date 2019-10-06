@@ -497,12 +497,24 @@ void do_program(char *filename)
             boot_data[0xFFEF] &= 0x7f;
             boot_data[0xFF6F] &= 0x7f;
         }
-        /* clear "r-0" bits of reserved configuration words for MM family
-         * (see data sheet: "configuration words summary" tables)
-         */
         if (strcmp(target->family->name, "mm") == 0){
+            /* clear "r-0" bits of reserved configuration words for MM family
+             * (see data sheet: "configuration words summary" tables)
+             */
             boot_data[0x17e3] &= 0x7f;
             boot_data[0x1763] &= 0x7f;
+        } else if (strcmp(target->family->name, "mx1xlp") == 0) {
+            /* Apply device configuration masks for PIX32MX1xx XLP */
+            devcfg0 &= 0x1187f01f;
+            devcfg1 &= 0x03fff7a7;
+            devcfg2 &= 0xffb700f7;
+            devcfg3 &= 0x30c00000;
+        } else if (strcmp(target->family->name, "mx2xlp") == 0) {
+            /* Apply device configuration masks for PIX32MX2xx XLP */
+            devcfg0 &= 0x1187f01f;
+            devcfg1 &= 0x03fff7a7;
+            devcfg2 &= 0xffb787f7;
+            devcfg3 &= 0x70c00000;
         }
     }
 

@@ -35,11 +35,12 @@ family_t family_mm  = { "mm",
 static const
 family_t family_mx1 = { "mx1",
                         3,  0x0bf0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
-
 static const
 family_t family_mx1xlp = { "mx1xlp",
-                        12, 0x2ff0, 128,  print_mx1, pic32_pemx1, 422,  0x0301 };
-
+                        12, 0x2ff0, 512,  print_mx1, pic32_pemx3, 1044,  0x201 };
+static const
+family_t family_mx2xlp = { "mx2xlp",
+                        12, 0x2ff0, 512,  print_mx1, pic32_pemx3, 1044,  0x201 };
 static const
 family_t family_mx3 = { "mx3",
                         12, 0x2ff0, 512,  print_mx3, pic32_pemx3, 1044, 0x0201 };
@@ -113,7 +114,8 @@ static variant_t pic32_tab[TABSZ] = {
     {0x6A35053, "MX570F512L",    512,   &family_mx1},
 
     /* MX1/2 XLP family---------Flash---Family */
-    {0x7803053, "MX274F256B",    256,   &family_mx1xlp},
+    {0x7801053, "MX174F256B",    256,   &family_mx1xlp},
+    {0x7803053, "MX274F256B",    256,   &family_mx2xlp},
 
     /* MX3/4/5/6/7 family-------Flash---Family */
     {0x0902053, "MX320F032H",     32,   &family_mx3},

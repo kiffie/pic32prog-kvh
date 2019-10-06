@@ -900,6 +900,7 @@ static void micsp_erase_chip (adapter_t *adapter)
     send_command(a, TAP_SW_MTAP);
     send_command(a, MTAP_COMMAND);
     xfer_data8(a, MCHP_ERASE);
+    xfer_data8(a, MCHP_DEASSERT_RST);
     //flush_output(a); /* not needed because xfer_data8 reads result */
     mdelay (400);
 
